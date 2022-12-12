@@ -1,5 +1,41 @@
 # Changelog
 
+## v4.2.0 (Dec 9, 2022)
+
+### **Features**
+### **Pinned Message :pushpin:**
+Pinned Message is released. You can now maintain a special set of messages (up to 10 per channel) that you want everyone in the channel to share. It can be anything from announcements, surveys, upcoming events, and any many more. Pin your messages and never miss them!
+Stay tuned for updates as we are rolling out more exciting features and see below for exact specifications:point_down:
+#### **Specification**
+- Pin when sending a message
+    - `UserMessageCreateParams.isPinnedMessage: Bool = false`
+    - `FileMessageCreateParams.isPinnedMessage: Bool = false`
+- Pin existing message
+    - `GroupChannel.pinMessage(messageId:completionHandler:)`
+- Unpin a message
+    - `GroupChannel.unpinMessage(messageId:completionHandler:)`
+- Pinned messages
+    - `GroupChannel.lastPinnedMessage: BaseMessage? = nil`
+    - `GroupChannel.pinnedMessageIds: [Int64]? = nil`
+#### **We strongly recommend using Collections (Message, Channel) to implement Pinned Messages as it would automatically take care of numerous events out of the box when messages are created, updated, and deleted.**
+------
+### **Improvements**
+* Added `use_local_cache` to the request header
+* Removed internal logs
+
+## v4.1.8 (Dec 02, 2022)
+
+### Improvements
+* Added `urlSession(_:task:didCompleteWithError:)` method implementation to the native web socket engine
+
+## v4.1.7 (Nov 29, 2022)
+
+### Improvements
+* Fixed a memory leak in the web socket engine
+* Added error log when using uninitialized Sendbird instance
+* Fixed to upsert channel change into database when receiving events
+* Fixed to use cached open channel when receiving system event
+
 ## v4.1.6 (Nov 16, 2022)
 
 ### Improvements
