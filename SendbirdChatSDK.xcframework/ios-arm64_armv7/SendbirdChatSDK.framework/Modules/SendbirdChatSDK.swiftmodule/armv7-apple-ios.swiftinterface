@@ -370,6 +370,7 @@ extension SendbirdChatSDK.MessageCollection : SendbirdChatSDK.GroupChannelDelega
   @objc dynamic open func channel(_ channel: SendbirdChatSDK.BaseChannel, deletedMetaCountersKeys: [Swift.String]?)
   @objc dynamic open func channel(_ channel: SendbirdChatSDK.GroupChannel, didUpdatePoll event: SendbirdChatSDK.PollUpdateEvent)
   @objc dynamic open func channel(_ channel: SendbirdChatSDK.GroupChannel, didVotePoll event: SendbirdChatSDK.PollVoteEvent)
+  @objc dynamic open func channelDidUpdatePinnedMessages(_ channel: SendbirdChatSDK.GroupChannel)
 }
 @objc(SBDInitParams) public class InitParams : ObjectiveC.NSObject {
   @objc public var applicationId: Swift.String
@@ -3607,6 +3608,8 @@ extension SendbirdChatSDK.GroupChannel {
   @objc public class func setFileTransferTimeout(_ timeout: Swift.Int)
   @objc public class func getWebSocketResponseTimeout() -> Foundation.TimeInterval
   @objc public class func setWebSocketResponseTimeout(_ timeout: Swift.Int)
+  @objc public class func setSessionTokenRefreshTimeout(_ timeout: Swift.Int)
+  @objc public class func getSessionTokenRefreshTimeout() -> Foundation.TimeInterval
   @objc override dynamic public init()
   @objc deinit
 }

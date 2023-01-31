@@ -1778,7 +1778,7 @@ SWIFT_PROTOCOL_NAMED("BaseChannelDelegate")
 /// \param user The user who was unbanned.
 ///
 - (void)channel:(SBDBaseChannel * _Nonnull)channel userWasUnbanned:(SBDUser * _Nonnull)user;
-/// A callback when an channel was frozen.
+/// A callback when a channel was frozen.
 /// \param channel The channel.
 ///
 - (void)channelWasFrozen:(SBDBaseChannel * _Nonnull)channel;
@@ -1786,14 +1786,14 @@ SWIFT_PROTOCOL_NAMED("BaseChannelDelegate")
 /// \param channel The channel
 ///
 - (void)channelWasUnfrozen:(SBDBaseChannel * _Nonnull)channel;
-/// A callback when an open channel was changed.
-/// \param channel The open channel.
+/// A callback for when channel property is changed.
+/// \param channel The channel the property is changed of.
 ///
 - (void)channelWasChanged:(SBDBaseChannel * _Nonnull)channel;
-/// A callback when an open channel was deleted.
+/// A callback for when a channel was deleted.
 /// \param channelURL The channel url.
 ///
-/// \param channelType The Type of channel, types of open channel or group channel.
+/// \param channelType The type of channel that is deleted.
 ///
 - (void)channelWasDeleted:(NSString * _Nonnull)channelURL channelType:(enum SBDChannelType)channelType;
 /// A callback when a message was removed in the channel.
@@ -2104,7 +2104,7 @@ SWIFT_CLASS_NAMED("BaseMessageCreateParams")
 @end
 
 
-/// Represents the base class which has parameters to update a channel.
+/// Represents the base class which has parameters to update a message.
 /// The <code>UserMessageUpdateParams</code>, the <code>FileMessageUpdateParams</code> are derived from this class.
 SWIFT_CLASS_NAMED("BaseMessageUpdateParams")
 @interface SBDBaseMessageUpdateParams : NSObject <NSCopying>
@@ -2658,7 +2658,7 @@ SWIFT_CLASS_NAMED("FileMessage")
 
 @class SBDThumbnailSize;
 
-/// An object contains set of options to create <code>FileMessage</code>
+/// An object contains set of options to create <code>FileMessage</code>.
 /// since:
 /// 3.0.90
 SWIFT_CLASS_NAMED("FileMessageCreateParams")
@@ -2701,7 +2701,7 @@ SWIFT_CLASS_NAMED("FileMessageCreateParams")
 @end
 
 
-/// The <code>FileMessageCreateParams</code> class is used to send a file message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageCreateParams</code>.
+/// The <code>FileMessageUpdateParams</code> class is used to update a file message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
 SWIFT_CLASS_NAMED("FileMessageUpdateParams")
 @interface SBDFileMessageUpdateParams : SBDBaseMessageUpdateParams
 /// Default constructor.
@@ -5076,6 +5076,7 @@ SWIFT_CLASS_NAMED("MessageCollection")
 - (void)channel:(SBDBaseChannel * _Nonnull)channel deletedMetaCountersKeys:(NSArray<NSString *> * _Nullable)deletedMetaCountersKeys;
 - (void)channel:(SBDGroupChannel * _Nonnull)channel didUpdatePoll:(SBDPollUpdateEvent * _Nonnull)event;
 - (void)channel:(SBDGroupChannel * _Nonnull)channel didVotePoll:(SBDPollVoteEvent * _Nonnull)event;
+- (void)channelDidUpdatePinnedMessages:(SBDGroupChannel * _Nonnull)channel;
 @end
 
 @class SBDMessageContext;
@@ -8606,6 +8607,18 @@ SWIFT_CLASS("_TtC15SendbirdChatSDK19SendbirdChatOptions")
 /// \param timeout Timeout in seconds.
 ///
 + (void)setWebSocketResponseTimeout:(NSInteger)timeout;
+/// Sets the timeout used in refreshing the session token when <code>SessionHandler.onSessionTokenRequired</code> is called.
+/// The value should be between 60 seconds and 1800 seconds (30 minutes).
+/// The default value is 60 seconds.
+/// since:
+/// 4.2.4
+/// \param timeout Timeout value in seconds.
+///
++ (void)setSessionTokenRefreshTimeout:(NSInteger)timeout;
+/// Gets the timeout in seconds used in refreshing the session token when <code>SessionHandler.onSessionTokenRequired</code> is called.
+/// since:
+/// 4.2.4
++ (NSTimeInterval)getSessionTokenRefreshTimeout SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -9307,7 +9320,7 @@ SWIFT_CLASS_NAMED("UserMessageCreateParams")
 @end
 
 
-/// The <code>UserMessageUpdateParams</code> class is used to send a user message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
+/// The <code>UserMessageUpdateParams</code> class is used to update a user message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
 /// since:
 /// 4.0.0
 SWIFT_CLASS_NAMED("UserMessageUpdateParams")
@@ -11156,7 +11169,7 @@ SWIFT_PROTOCOL_NAMED("BaseChannelDelegate")
 /// \param user The user who was unbanned.
 ///
 - (void)channel:(SBDBaseChannel * _Nonnull)channel userWasUnbanned:(SBDUser * _Nonnull)user;
-/// A callback when an channel was frozen.
+/// A callback when a channel was frozen.
 /// \param channel The channel.
 ///
 - (void)channelWasFrozen:(SBDBaseChannel * _Nonnull)channel;
@@ -11164,14 +11177,14 @@ SWIFT_PROTOCOL_NAMED("BaseChannelDelegate")
 /// \param channel The channel
 ///
 - (void)channelWasUnfrozen:(SBDBaseChannel * _Nonnull)channel;
-/// A callback when an open channel was changed.
-/// \param channel The open channel.
+/// A callback for when channel property is changed.
+/// \param channel The channel the property is changed of.
 ///
 - (void)channelWasChanged:(SBDBaseChannel * _Nonnull)channel;
-/// A callback when an open channel was deleted.
+/// A callback for when a channel was deleted.
 /// \param channelURL The channel url.
 ///
-/// \param channelType The Type of channel, types of open channel or group channel.
+/// \param channelType The type of channel that is deleted.
 ///
 - (void)channelWasDeleted:(NSString * _Nonnull)channelURL channelType:(enum SBDChannelType)channelType;
 /// A callback when a message was removed in the channel.
@@ -11482,7 +11495,7 @@ SWIFT_CLASS_NAMED("BaseMessageCreateParams")
 @end
 
 
-/// Represents the base class which has parameters to update a channel.
+/// Represents the base class which has parameters to update a message.
 /// The <code>UserMessageUpdateParams</code>, the <code>FileMessageUpdateParams</code> are derived from this class.
 SWIFT_CLASS_NAMED("BaseMessageUpdateParams")
 @interface SBDBaseMessageUpdateParams : NSObject <NSCopying>
@@ -12036,7 +12049,7 @@ SWIFT_CLASS_NAMED("FileMessage")
 
 @class SBDThumbnailSize;
 
-/// An object contains set of options to create <code>FileMessage</code>
+/// An object contains set of options to create <code>FileMessage</code>.
 /// since:
 /// 3.0.90
 SWIFT_CLASS_NAMED("FileMessageCreateParams")
@@ -12079,7 +12092,7 @@ SWIFT_CLASS_NAMED("FileMessageCreateParams")
 @end
 
 
-/// The <code>FileMessageCreateParams</code> class is used to send a file message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageCreateParams</code>.
+/// The <code>FileMessageUpdateParams</code> class is used to update a file message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
 SWIFT_CLASS_NAMED("FileMessageUpdateParams")
 @interface SBDFileMessageUpdateParams : SBDBaseMessageUpdateParams
 /// Default constructor.
@@ -14454,6 +14467,7 @@ SWIFT_CLASS_NAMED("MessageCollection")
 - (void)channel:(SBDBaseChannel * _Nonnull)channel deletedMetaCountersKeys:(NSArray<NSString *> * _Nullable)deletedMetaCountersKeys;
 - (void)channel:(SBDGroupChannel * _Nonnull)channel didUpdatePoll:(SBDPollUpdateEvent * _Nonnull)event;
 - (void)channel:(SBDGroupChannel * _Nonnull)channel didVotePoll:(SBDPollVoteEvent * _Nonnull)event;
+- (void)channelDidUpdatePinnedMessages:(SBDGroupChannel * _Nonnull)channel;
 @end
 
 @class SBDMessageContext;
@@ -17984,6 +17998,18 @@ SWIFT_CLASS("_TtC15SendbirdChatSDK19SendbirdChatOptions")
 /// \param timeout Timeout in seconds.
 ///
 + (void)setWebSocketResponseTimeout:(NSInteger)timeout;
+/// Sets the timeout used in refreshing the session token when <code>SessionHandler.onSessionTokenRequired</code> is called.
+/// The value should be between 60 seconds and 1800 seconds (30 minutes).
+/// The default value is 60 seconds.
+/// since:
+/// 4.2.4
+/// \param timeout Timeout value in seconds.
+///
++ (void)setSessionTokenRefreshTimeout:(NSInteger)timeout;
+/// Gets the timeout in seconds used in refreshing the session token when <code>SessionHandler.onSessionTokenRequired</code> is called.
+/// since:
+/// 4.2.4
++ (NSTimeInterval)getSessionTokenRefreshTimeout SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -18685,7 +18711,7 @@ SWIFT_CLASS_NAMED("UserMessageCreateParams")
 @end
 
 
-/// The <code>UserMessageUpdateParams</code> class is used to send a user message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
+/// The <code>UserMessageUpdateParams</code> class is used to update a user message in <code>BaseChannel</code>. This is a child class of <code>BaseMessageUpdateParams</code>.
 /// since:
 /// 4.0.0
 SWIFT_CLASS_NAMED("UserMessageUpdateParams")
