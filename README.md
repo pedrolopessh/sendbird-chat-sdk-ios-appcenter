@@ -6,6 +6,8 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Commercial License](https://img.shields.io/badge/License-Commercial-brightgreen.svg)](https://github.com/sendbird/sendbird-chat-sdk-ios/blob/master/LICENSE.md)
 
+> :warning: **DO NOT USE THESE VERSIONS**: `v4.3.1`, `v4.3.2`, `v4.4.0`, `v4.5.0`. There is a bug where the pending push token is removed after connecting a user.
+
 ## Table of contents
 
 1.  [Introduction](#introduction)
@@ -39,7 +41,7 @@ The minimum requirements for Chat SDK for iOS are:
 
 - `macOS`
 - `Xcode`
-- `At least one device running iOS 9.0 and later`
+- `At least one device running iOS 11.0 and later`
 - `Swift 5.0 or later` or `Objective-C`
 
 > **Note**: Sendbird server supports Transport Layer Security (TLS) from version 1.0 up to 1.3. For example, in the server regions where TLS 1.3 isn’t available, lower versions, sequentially from 1.2 to 1.0, will be supported for secure data transmission.
@@ -101,7 +103,7 @@ $ pod init
 2. A **Podfile** will be created in your project folder. Open the **Podfile** and modify the file like the following.
 
 ```bash
-# platform :ios, '9.0'
+# platform :ios, '11.0'
 
 target 'YOUR_PROJECT_NAME' do
    # Comment the next line if you don't want to use dynamic frameworks

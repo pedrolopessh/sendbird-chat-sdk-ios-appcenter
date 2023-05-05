@@ -1,5 +1,235 @@
 # Changelog
 
+## v4.8.0 (May 03, 2023)
+
+### **Features**
+### PinnedMessageListQuery
+You can now retrieve all pinned messages within a GroupChannel by the `PinnedMessageListQuery`.
+
+* Added `PinnedMessage`
+* Added `PinnedMessageListQuery`, `PinnedMessageListQueryParams`
+* Added `createPinnedMessageListQuery(params:)` for `GroupChannel` object
+
+```swift
+let queryParams = PinnedMessageListQueryParams { params in
+    params.limit = 20
+    // Set other properties in `params`
+}
+self.query = channel.createPinnedMessageListQuery(queryParams)
+self.query.loadNextPage { messages, error in
+    // Handle result
+}
+```
+
+### **Improvements**
+- Added URL encoding for `userId` with non-ascii characters 
+
+## v4.7.0 (Apr 26, 2023)
+
+### **Features**
+### (Moderation) Automatically detect when user is unmuted
+You can now automatically detect when a muted user is unmuted by leveraging `MessageCollection`.
+Clients will now receive `MessageCollectionDelegate.messageCollection(_:context:updatedChannel:)` with `CollectionEventSource.eventUserUnmuted` when an user is unmuted after their muted duration has expired, on top of explict unmute calls. This now means that you can easily transition user’s experience and allow them to chat even more seamlessly.
+Note that this is a MessageCollections only feature! We recommend all of our clients to give it a try if you haven’t : )
+
+### Improvements
+- Updated iOS deployment target to 11.0 for Xcode 14.1+
+- Fixed crash issue that occurred when encoding GroupChannel
+
+## v4.6.7 (Apr 19, 2023)
+
+### Improvements
+- Improved stability
+
+## v4.6.6 (Apr 12, 2023)
+
+### Improvements
+- Changed default value of nextResultSize and prevResultSize in MessageCollection to 40
+- Stability improvements
+
+## v4.6.5 (Apr 10, 2023)
+
+- Fixed a bug where a group channel collection returns channels for other user who used the device
+
+## v4.6.4 (Apr 04, 2023)
+
+- Fixed an error where the previous user's channels remained in the database
+
+## v4.6.3 (Mar 30, 2023)
+
+- Fixed a bug where a group channel collection could return duplicated channels
+- Improved local caching hit ratio
+
+## v4.6.2 (Mar 24, 2023)
+
+### Improvements
+- Fixed group channel collection's channelList not being updated properly after hiding a channel
+- Added ephemeral support for open channels
+- Fixed a bug where the 'Allowed domains' denies the connection from the SDK
+
+## v4.6.1 (Mar 20, 2023)
+
+### Improvements
+- Fixed an issue where network wouldn't properly reconnect when connect() is called again with a different user id
+
+## v4.6.0 (Mar 14, 2023)
+
+### **Features**
+### **Set your own Local Caching DB size**
+You can now control the size of your local cache. Starting from 64mb, decide how much you want to store (Default: 256mb).
+Once the size limit is reached, the SDK will automatically remove messages and channels with pre-specified logic (`clearOrder`)  so that you don't have to actively manage it.
+- Added DB size related properties in `LocalCacheConfig`
+```swift
+let localCacheConfig = LocalCacheConfig()
+localCacheConfig.maxSize = 256
+localCacheConfig.clearOrder = .messageCollectionAccessedAt
+```
+- Added SendbirdChat.getTotalUnreadMessageCountWithFeed(params:completionHandler:)
+    - Deprecated SendbirdChat.getTotalUnreadMessageCount(params:completionHandler:)
+- Added UserEventDelegate.didUpdateTotalUnreadMessageCount(unreadMessageCount:)
+    - Deprecated UserEventDelegate.didUpdateTotalUnreadMessageCount(_:totalCountByCustomType:)
+
+## v4.5.3 (Mar 10, 2023)
+
+- Fixed an issue where push notification doesn't get delivered to some users
+
+## v4.5.2 (Mar 08, 2023)
+
+## Features
+### Encrypting Local Caching
+Locally saved chats in your user's device can now be encrypted with `FileProtectionType.completeUnlessOpen` protection level. 
+To enable this protection, please refer to below guide and API Reference. 
+
+### Brief guide
+When creating `InitParams`, set `LocalCacheConfig.isEncryptionEnabled` to `true`. This option is turned off by default, so you don't have to set anything up if you don't intend to use it.
+```Swift
+let localCacheConfig = LocalCacheConfig(isEncryptionEnabled: true)
+let initParams = InitParams(
+    applicationId: appId,
+    isLocalCachingEnabled: true,
+    localCacheConfig: localCacheConfig
+)
+```
+
+## v4.5.1 (Mar 07, 2023)
+
+### **Improvements**
+- Fixed not to delete pendingPushToken after applying cache configuration
+
+## v4.5.0 (Mar 03, 2023)
+
+> :warning: **DO NOT USE THIS VERSION**: There is a bug where the pending push token is removed after connecting a user.
+
+### **Features**
+
+### **Polls in Open Channel**
+Polls is now supported in both Open Channels and Group Channels!
+
+#### **Specification**
+Moved following methods from `GroupChannel` to `BaseChannel`:
+- func updatePoll(pollId: Int64, params: PollUpdateParams, completionHandler: PollHandler?)
+- func deletePoll(pollId: Int64, completionHandler: SBErrorHandler?)
+- func closePoll(pollId: Int64, completionHandler: PollHandler?)
+- func addPollOption(pollId: Int64, optionText: String, completionHandler: PollHandler?)
+- func updatePollOption(pollId: Int64, pollOptionId: Int64, optionText: String, completionHandler: PollHandler?)
+- func deletePollOption(pollId: Int64, pollOptionId: Int64, completionHandler: SBErrorHandler?)
+- func votePoll(pollId: Int64, pollOptionIds: [Int64], completionHandler: PollVoteEventHandler)
+- func getPollChangeLogs(token: String?, completionHandler: PollChangeLogsHandler?)
+- func getPollChangeLogs(timestamp: Int64, completionHandler: PollChangeLogsHandler?)
+- func createPollListQuery(limit: UInt = 20) -> PollListQuery? 
+- func createPollVoterListQuery(pollId: Int64, pollOptionId: Int64, limit: UInt = 20) -> PollVoterListQuery
+
+Added the following interfaces in OpenChannelDelegate:
+- func channel(_ channel: OpenChannel, didUpdatePoll event: PollUpdateEvent)
+- func channel(_ channel: OpenChannel, didVotePoll event: PollVoteEvent)
+- func channel(_ channel: OpenChannel, pollWasDeleted pollId: Int64) 
+
+Added the following interfaces in Polls:
+- `Poll.serialize()` 
+- `Poll.build(fromSerializedData:)` 
+
+### **Improvements**
+- Fixed a bug where the size of the DB file was not being updated after disconnection
+
+## v4.4.0 (Feb 22, 2023)
+
+> :warning: **DO NOT USE THIS VERSION**: There is a bug where the pending push token is removed after connecting a user.
+
+### **Features**
+
+### Disconnect Websocket only
+
+When you call `SendbirdChat.disconnect`, it disconnects the WebSocket and clears local cache. You can think of it as logging out.
+
+In some cases, you need to only disconnect the WebSocket. You can now do it by calling `SendbirdChat.disconnectWebSocket`.
+It only disconnects the WebSocket and preserves the local cache.
+```swift
+SendbirdChat.disconnectWebSocket {
+    // onDisconnected
+}
+```
+To connect again after disconnecting with `disconnectWebSocket()`,
+use [SendbirdChat.connect()](https://sendbird.com/docs/chat/v4/ios/application/authenticating-a-user/authentication#2-connect-to-the-sendbird-server-with-a-user-id).
+```swift
+SendbirdChat.connect(userId: userId) { user, error in
+    if let user = user {
+        // onConnected
+    } else {
+        // Handle error.
+    }
+}
+```
+
+### **Improvements**
+- Fixed to prevent initializing SendbirdChat multiple times with same `applicationId` and `isLocalCachingEnabled`
+
+## v4.3.2 (Feb 16, 2023)
+
+> :warning: **DO NOT USE THIS VERSION**: There is a bug where the pending push token is removed after connecting a user.
+
+- Fixed group channel querying with nickname filters (`nicknameContainsFilter`, `nicknameExactMatchFilter`, `nicknameExactMatchFilter`) to behave the same whether or not local caching is enabled
+
+## v4.3.1 (Feb 15, 2023)
+
+> :warning: **DO NOT USE THIS VERSION**: There is a bug where the pending push token is removed after connecting a user.
+
+- Added default value for `params` argument in each interface:
+    - `BaseChannel.getMessageChangeLogs(token:params:completionHandler)`
+    - `BaseChannel.getMessageChangeLogs(timestamp:params:completionHandler)`
+    - `SendbirdChat.getMyGroupChannelChangeLogs(token:params:completionHandler)`
+    - `SendbirdChat.getMyGroupChannelChangeLogs(timestamp:params:completionHandler)`
+- `registerDevicePushToken(_:unique:completionHandler:)` passes error to completionHandler when called before SendbirdChat is initialized
+- Fix a bug that the collection's callback is not called
+
+## v4.3.0 (Feb 01, 2023)
+
+
+### **Features**
+
+Participant class in Open Channel
+
+Participant is a new interface for User who joined Open Channel. It's optimized for scalability and contains much lighter information about the User than a Member in Group Channel. 
+Now clients can implement Open Channels easier in SDK with more built-in capabilities. You can compare how Member, Participant, and User are different [here]("https://sendbird.com/docs/chat/v4/ios/user/overview-user#2-user-types").
+
+- `Participant` holds essential information about the participant like below. They contain their muted status (`is_muted`) on top of basic User information.
+```
+@objc(SBDParticipant)
+public class Participant: User {
+
+    @objc
+    public internal(set) var isMuted: Bool
+
+    @objc
+    public func serialize() -> Data?
+
+    @objc
+    public class func build(fromSerializedData data: Data?) -> Self?
+}
+```
+
+- `ParticipantListQuery.loadNextPage(completionHandler: @escaping UserListHandler)` now returns `[Participant]`
+  - For backward compatibility, the `UsersHandler` returns `User` list, but it can be casted into `Participant`
+
 ## v4.2.4 (Jan 20, 2023)
 
 
