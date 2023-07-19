@@ -1,5 +1,93 @@
 # Changelog
 
+## v4.9.5 (Jul 13, 2023) 
+### **Improvements**
+- Resolved the inconsistency between WebSocket connection state and network reachability
+- Fixed a crash that can happen when SessionExpiredEvent is received
+- Improved stability
+
+## v4.9.4 (Jul 11, 2023) 
+### **Improvements**
+- Added `isBot` property in `User` model to identify whether the sender is a Bot
+
+## v4.9.3 (Jun 27, 2023)
+### **Improvements**
+- Fixed a bug where GroupChannelDelegate method func `channelDidUpdateTypingStatus(_ channel: GroupChannel)` was not being called when a typer becomes idle
+
+## v4.9.2 (Jun 22, 2023)
+### **Improvements**
+- Fixed a security flaw related to the connection
+- Fixed a bug where a group channel can be filtered out when a message in the channel is removed
+- Improved stability
+
+## v4.9.1 (Jun 14, 2023)
+### **IMPORTANT NOTICE**
+```diff
+iOS Chat SDK version `4.9.0` has a bug where FileMessage is not received. Please skip version `4.9.0`, and update to version **`4.9.1`** or above instead.
+```
+### **Improvements**
+- Fixed FileMessage being parsed as MultipleFilesMessage
+
+## v4.9.0 (Jun 09, 2023)
+
+### **Features**
+### MultipleFilesMessage
+You can send a `MultipleFilesMessage` that contains multiple files in a single message via `GroupChannel.sendMultipleFilesMessage(params:fileUploadHandler:completionHandler:)` 
+- Added `MultipleFilesMessage`.
+- Added `GroupChannel.sendMultipleFilesMessage`, `MultipleFilesMessageCreateParams`, `UploadableFileInfo` and `UploadedFileInfo`.
+- Added `MultipleFilesMessageHandler` and `FileUploadHandler`. 
+- Added `SendbirdChat.getMultipleFilesMessageFileCountLimit()` that indicates the maximum count of files that can be included in a single message.
+
+```swift
+let params = MultipleFilesMessageCreateParams(
+    uploadableFileInfoList: [UploadableFileInfo(file: file), UploadableFileInfo(fileURL: fileUrl)]
+)
+
+channel.sendMultipleFilesMessage(
+    params: params,
+    fileUploadHandler = { requestId, index, uploadableFileInfo, error ->
+        // handle the upload result of each UploadableFileInfo. 
+    },
+    completionHandler = { message, error ->
+        // handle the result of sending MultipleFilesMessage.
+    }
+)
+```
+
+## v4.8.6 (Jun 07, 2023)
+
+### Improvements
+- Fixed not to hang main thread when requesting huge gap API
+- Fixed issues in `MessageCollection.startCollection` and `NotificationCollection.startCollection`
+  - Fixed an error that returned duplicate cache messages
+  - Fixed an issue that did not fetch cache messages based on starting point
+- Resolved DB migration issue
+
+## v4.8.5 (May 24, 2023)
+
+### Improvements
+- Fixed `MessageCollectionDelegate.messageCollection(_:context:channel:updatedMessages:)` to be invoked after sending a message via API fallback
+- Fixed `GroupChannelCollectionDelegate.channelCollection(_:context:addedChannels:)` to not be invoked for added messages until `loadMore` is called in `GroupChannelCollection`
+
+## v4.8.4 (May 17, 2023)
+
+### Improvements
+- Improved stability
+
+## v4.8.3 (May 16, 2023)
+
+### Improvements
+- Improved stability
+
+## v4.8.2 (May 12, 2023)
+
+- Added `includeParentMessageInfo` to `PinnedMessageListQueryParams`
+
+## v4.8.1 (May 10, 2023)
+
+### **Improvements**
+- Fixed a crash issue that occurred when encoding `User`
+
 ## v4.8.0 (May 03, 2023)
 
 ### **Features**

@@ -8,6 +8,8 @@
 
 > :warning: **DO NOT USE THESE VERSIONS**: `v4.3.1`, `v4.3.2`, `v4.4.0`, `v4.5.0`. There is a bug where the pending push token is removed after connecting a user.
 
+> :warning: **DO NOT USE THIS VERSION**: `v4.9.0`. There is a bug where FileMessage is not received.
+
 ## Table of contents
 
 1.  [Introduction](#introduction)
@@ -316,6 +318,14 @@ class ViewController: UIViewController, OpenChannelDelegate {
 ```
 
 <br />
+
+## Chat SDK Size
+The below is the size of Chat SDK as of `v4.9.2`.
+
+- Download Size: 2.57 MB
+- Install Size: 8.05 MB
+
+
 
 ## We are hiring
 

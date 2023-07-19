@@ -14,7 +14,7 @@
         {
           "containerPath" : "container:SendbirdChat.xcodeproj",
           "identifier" : "52B9FFCD2696CEC400492739",
-          "name" : "SendbirdChat"
+          "name" : "SendbirdChatSDK"
         }
       ]
     }

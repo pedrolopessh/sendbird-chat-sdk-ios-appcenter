@@ -415,10 +415,10 @@ SWIFT_CLASS_NAMED("AppInfo")
 /// since:
 /// 3.0.180
 @property (nonatomic, copy) NSString * _Nonnull emojiHash;
-/// This is the uploadable file size limit. (The unit is bytes.)
+/// This is the uploadable file size limit. (When receiving this value from the server, the unit is bytes.)
 /// since:
 /// 3.0.180
-@property (nonatomic) int64_t uploadSizeLimit;
+@property (nonatomic, readonly) int64_t uploadSizeLimit;
 /// This is the premium feature list using on your Application ID.
 /// since:
 /// 3.0.180
@@ -444,6 +444,10 @@ SWIFT_CLASS_NAMED("AppInfo")
 /// since:
 /// 4.6.0
 @property (nonatomic, strong) SBDNotificationInfo * _Nullable notificationInfo;
+/// The maximum number of files that can be sent in a <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+@property (nonatomic, readonly) NSInteger multipleFilesMessageFileCountLimit;
 /// This function can check if Emoji information needs to be updated to date.
 /// since:
 /// 3.0.180
@@ -660,7 +664,7 @@ SWIFT_CLASS_NAMED("BaseChannel")
 /// since:
 /// 3.0.199
 @property (nonatomic, strong) SBDUser * _Nullable creator;
-/// The timestamp when the channel is created.
+/// The timestamp when the channel is created in seconds.
 @property (nonatomic) int64_t createdAt;
 /// The custom data of the channel.
 @property (nonatomic, copy) NSString * _Nullable data;
@@ -712,6 +716,7 @@ SWIFT_CLASS_NAMED("BaseChannel")
 @end
 
 
+
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
@@ -723,33 +728,23 @@ SWIFT_CLASS_NAMED("BaseChannel")
 @end
 
 
-@class SBDMessageListParams;
+
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Retrieves previous or next messages based on a specified timestamp in the channel.
+/// Deletes a message. The message’s sender has to be the current user.
+/// \param message The message to be deleted.
+///
+/// \param completionHandler The handler block to execute.
+///
+- (void)deleteMessage:(SBDBaseMessage * _Nonnull)message completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Deletes a message. The message’s sender has to be the current user.
 /// since:
-/// 3.0.181
-/// \param timestamp Specifies the timestamp to be the reference point for messages to retrieve, in Unix
-/// milliseconds format. Messages sent before or after the timestamp can be retrieved.
+/// 3.0.179
+/// \param messageId The message ID to be deleted.
 ///
-/// \param params Contains a set of parameters you can set regarding the messages in the results.
+/// \param completionHandler The handler block to execute.
 ///
-/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
-/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
-///
-- (void)getMessagesByTimestamp:(int64_t)timestamp params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
-/// Retrieves previous or next messages based on their message ID in a specific channel.
-/// since:
-/// 3.0.181
-/// \param messageId Specifies the message ID to be the reference point for messages to retrieve.
-/// Messages sent before or after the message with the matching message ID can be retrieved.
-///
-/// \param params Contains a set of parameters you can set regarding the messages in the results.
-///
-/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
-/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
-///
-- (void)getMessagesByMessageId:(int64_t)messageId params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
+- (void)deleteMessageWithMessageId:(int64_t)messageId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
 @end
 
 @class SBDReactionEvent;
@@ -787,25 +782,34 @@ SWIFT_CLASS_NAMED("BaseChannel")
 - (void)deleteReactionWithMessage:(SBDBaseMessage * _Nonnull)message key:(NSString * _Nonnull)key completionHandler:(void (^ _Nullable)(SBDReactionEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
-
+@class SBDMessageListParams;
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deletes a message. The message’s sender has to be the current user.
-/// \param message The message to be deleted.
-///
-/// \param completionHandler The handler block to execute.
-///
-- (void)deleteMessage:(SBDBaseMessage * _Nonnull)message completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Deletes a message. The message’s sender has to be the current user.
+/// Retrieves previous or next messages based on a specified timestamp in the channel.
 /// since:
-/// 3.0.179
-/// \param messageId The message ID to be deleted.
+/// 3.0.181
+/// \param timestamp Specifies the timestamp to be the reference point for messages to retrieve, in Unix
+/// milliseconds format. Messages sent before or after the timestamp can be retrieved.
 ///
-/// \param completionHandler The handler block to execute.
+/// \param params Contains a set of parameters you can set regarding the messages in the results.
 ///
-- (void)deleteMessageWithMessageId:(int64_t)messageId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
+/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
+///
+- (void)getMessagesByTimestamp:(int64_t)timestamp params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
+/// Retrieves previous or next messages based on their message ID in a specific channel.
+/// since:
+/// 3.0.181
+/// \param messageId Specifies the message ID to be the reference point for messages to retrieve.
+/// Messages sent before or after the message with the matching message ID can be retrieved.
+///
+/// \param params Contains a set of parameters you can set regarding the messages in the results.
+///
+/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
+/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
+///
+- (void)getMessagesByMessageId:(int64_t)messageId params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
 @end
-
 
 
 /// Mappable protocol to initialize sendbird object from a given dictionary.
@@ -861,7 +865,6 @@ SWIFT_PROTOCOL("_TtP15SendbirdChatSDK12Serializable_")
 /// <code>BaseChannel</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
 @end
-
 
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -936,6 +939,7 @@ enum SBDReportCategory : NSInteger;
 @property (nonatomic, readonly, copy) NSString * _Nullable channelUrl SWIFT_UNAVAILABLE_MSG("'channelUrl' has been renamed to 'channelURL'");
 @property (nonatomic, readonly, copy) NSString * _Nullable coverUrl SWIFT_UNAVAILABLE_MSG("'coverUrl' has been renamed to 'coverURL'");
 @end
+
 
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -1054,7 +1058,6 @@ enum SBDReportCategory : NSInteger;
 /// no error, the value is <code>nil</code>.
 ///
 - (void)getMessageChangeLogsSinceTimestamp:(int64_t)timestamp params:(SBDMessageChangeLogsParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-- (void)getMessageChangeLogsWithToken:(NSString * _Nullable)token timestamp:(int64_t)timestamp params:(SBDMessageChangeLogsParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
 /// Retrieves the changelogs since a specified token regarding the updated polls or the unique IDs
 /// of deleted polls in the channel.
 /// since:
@@ -1081,81 +1084,6 @@ enum SBDReportCategory : NSInteger;
 /// an error. If there is no error, the value is <code>nil</code>.
 ///
 - (void)getPollChangeLogsWithTimestamp:(int64_t)timestamp completionHandler:(void (^ _Nullable)(NSArray<SBDPoll *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-- (void)getPollChangeLogsWithToken:(NSString * _Nullable)token timestamp:(int64_t)timestamp completionHandler:(void (^ _Nullable)(NSArray<SBDPoll *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-@end
-
-@class SBDPollUpdateParams;
-@class SBDPollVoteEvent;
-
-@interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Updates a poll with params.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to update
-///
-/// \param params <code>PollUpdateParams</code> instance.
-///
-/// \param completionHandler Completion block.
-///
-- (void)updatePollWithPollId:(int64_t)pollId params:(SBDPollUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Deletes a poll.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to remove
-///
-/// \param completionHandler Completion block.
-///
-- (void)deletePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Closes a poll.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to close
-///
-/// \param completionHandler 
-///
-- (void)closePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Adds an option to a poll.
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param optionText 
-///
-/// \param completionHandler 
-///
-- (void)addPollOptionWithPollId:(int64_t)pollId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Updates an option to a poll.
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionId 
-///
-/// \param optionText 
-///
-/// \param completionHandler 
-///
-- (void)updatePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Removes Poll option
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionId poll option id to delete
-///
-/// \param completionHandler 
-///
-- (void)deletePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Votes poll
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionIds 
-///
-/// \param completionHandler 
-///
-- (void)votePollWithPollId:(int64_t)pollId pollOptionIds:(NSArray<NSNumber *> * _Nonnull)pollOptionIds completionHandler:(void (^ _Nullable)(SBDPollVoteEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
 @class SBDUserMessage;
@@ -1251,6 +1179,80 @@ enum SBDReportCategory : NSInteger;
 /// Another factor is an error. If failed to request, an error is dispatched.
 ///
 - (void)translateUserMessage:(SBDUserMessage * _Nonnull)message targetLanguages:(NSArray<NSString *> * _Nonnull)targetLanguages completionHandler:(void (^ _Nullable)(SBDUserMessage * _Nullable, SBError * _Nullable))completionHandler;
+@end
+
+@class SBDPollUpdateParams;
+@class SBDPollVoteEvent;
+
+@interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Updates a poll with params.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to update
+///
+/// \param params <code>PollUpdateParams</code> instance.
+///
+/// \param completionHandler Completion block.
+///
+- (void)updatePollWithPollId:(int64_t)pollId params:(SBDPollUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Deletes a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to remove
+///
+/// \param completionHandler Completion block.
+///
+- (void)deletePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Closes a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to close
+///
+/// \param completionHandler Completion block
+///
+- (void)closePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Adds an option to a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to add the poll option
+///
+/// \param optionText Option text of the poll option
+///
+/// \param completionHandler Completion block
+///
+- (void)addPollOptionWithPollId:(int64_t)pollId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Updates an option to a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of poll to update the poll option
+///
+/// \param pollOptionId ID of the poll option
+///
+/// \param optionText Option text of the poll option
+///
+/// \param completionHandler Completion block
+///
+- (void)updatePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Removes Poll option
+/// since:
+/// 4.5.0
+/// \param pollId ID of the poll to delete poll option of
+///
+/// \param pollOptionId poll option id to delete
+///
+/// \param completionHandler Completion block
+///
+- (void)deletePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Votes poll
+/// since:
+/// 4.5.0
+/// \param pollId Poll ID to vote
+///
+/// \param pollOptionIds List of poll option IDs to vote
+///
+/// \param completionHandler Completion block
+///
+- (void)votePollWithPollId:(int64_t)pollId pollOptionIds:(NSArray<NSNumber *> * _Nonnull)pollOptionIds completionHandler:(void (^ _Nullable)(SBDPollVoteEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
 
@@ -1466,7 +1468,7 @@ enum SBDReportCategory : NSInteger;
 ///
 /// returns:
 /// Returns a temporary file message being sent to the Sendbird server. The message has a request ID instead of a message ID.
-/// The request status of the message is pending. If you try to send a message with an invalid parameter, the returned message is a user
+/// The request status of the message is pending. If you try to send a message with an invalid parameter, the returned message is a file
 /// message with no properties. You can perform a validation of pending message by checking for the existence of the request ID.
 - (SBDFileMessage * _Nullable)sendFileMessageWithParams:(SBDFileMessageCreateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDFileMessage * _Nullable, SBError * _Nullable))completionHandler;
 /// Sends a file message with file or file URL of params without progress.
@@ -2067,13 +2069,13 @@ SWIFT_CLASS_NAMED("BaseCollection")
 @end
 
 
+
 @interface SBDBaseMessage (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
 /// Initialize with json dictionary
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
 /// Converts the object into dictionary
 - (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
-
 
 
 @interface SBDBaseMessage (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -2499,6 +2501,7 @@ typedef SWIFT_ENUM_NAMED(NSInteger, SBDChannelType, "ChannelType", open) {
   SBDChannelTypeFeed = 2,
 };
 
+/// Chat Error code
 typedef SWIFT_ENUM_NAMED(NSInteger, SBChatError, "ChatError", open) {
   SBChatErrorInvalidParameterValueString = 400100,
   SBChatErrorInvalidParameterValueNumber = 400101,
@@ -2737,6 +2740,7 @@ SWIFT_CLASS_NAMED("DeliveryStatus")
 @end
 
 
+
 /// Class to represent emoji
 /// since:
 /// 3.0.180
@@ -2936,6 +2940,12 @@ SWIFT_CLASS_NAMED("FeedChannelListQuery")
 
 
 @interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Determines channel list includes empty channel. Default is <code>true</code>
+@property (nonatomic, readonly) BOOL includeEmptyChannel;
+@end
+
+
+@interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Copies this object
 /// \param zone optional <code>NSZone</code>
 ///
@@ -2943,12 +2953,6 @@ SWIFT_CLASS_NAMED("FeedChannelListQuery")
 /// returns:
 /// <code>FeedChannelListQuery</code> instance
 - (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Determines channel list includes empty channel. Default is <code>true</code>
-@property (nonatomic, readonly) BOOL includeEmptyChannel;
 @end
 
 
@@ -2996,6 +3000,9 @@ SWIFT_CLASS_NAMED("FileMessage")
 @property (nonatomic, copy) NSArray<SBDThumbnail *> * _Nullable thumbnails;
 @property (nonatomic, strong) SBDMessageRequestState * _Nullable requestState SWIFT_UNAVAILABLE_MSG("This property has been removed.");
 - (SBDFileMessageCreateParams * _Nullable)getFileMessageParams SWIFT_WARN_UNUSED_RESULT;
+/// Disposes of the binary data in the file cache directory. The file message’s pending or failed message could have binary data in the <code>messageParams</code> property. The binary data could be used for the message preview or resending a failed message, so the binary data is stored in the file cache directory temporally. The binary data will be removed later automatically. If the binary data is needed to be removed when the pending or the failed file message is not used any more, this method could be called.
+/// since:
+/// 4.0.14
 - (void)dispose;
 @end
 
@@ -3312,6 +3319,9 @@ SWIFT_CLASS_NAMED("GroupChannel")
 
 
 
+
+
+
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
@@ -3377,6 +3387,54 @@ SWIFT_CLASS_NAMED("GroupChannel")
 - (void)updateScheduledUserMessageWithScheduledMessageId:(int64_t)scheduledMessageId userMessageParams:(SBDScheduledUserMessageUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDUserMessage * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Deserializes and reconstructs the object
+/// \param data <code>Data</code> instance
+///
+///
+/// returns:
+/// <code>GroupChannel</code> if parameter is valid, otherwise <code>nil</code>
++ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Freeze the channel. If channel is frozen, only operators can send messages to the channel.
+/// since:
+/// 3.0.89
+/// \param completionHandler The handler block to be executed after freeze.
+///
+- (void)freezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Stop to freeze the channel. If It is not frozen channel, this will be ignored.
+/// since:
+/// 3.0.89
+/// \param completionHandler The handler block to be executed after stop to freeze.
+///
+- (void)unfreezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+@end
+
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Sends the scheduled message now.
+/// since:
+/// 4.0.0
+/// \param scheduledMessageId The scheduled message ID.
+///
+/// \param completionHandler The handler block to be executed after sending the scheduled message or when an error occurs.
+///
+- (void)sendScheduledMessageNowWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+/// Cancels the scheduled message.
+/// since:
+/// 4.0.0
+/// \param scheduledMessageId The scheduled message ID.
+///
+/// \param completionHandler The handler block to be executed after canceling the scheduled message or when an error occurs.
+///
+- (void)cancelScheduledMessageWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+@end
+
 @class SBDScheduledFileMessageUpdateParams;
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -3416,57 +3474,30 @@ SWIFT_CLASS_NAMED("GroupChannel")
 @end
 
 
-@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Freeze the channel. If channel is frozen, only operators can send messages to the channel.
-/// since:
-/// 3.0.89
-/// \param completionHandler The handler block to be executed after freeze.
-///
-- (void)freezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Stop to freeze the channel. If It is not frozen channel, this will be ignored.
-/// since:
-/// 3.0.89
-/// \param completionHandler The handler block to be executed after stop to freeze.
-///
-- (void)unfreezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-@end
+
+
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deserializes and reconstructs the object
-/// \param data <code>Data</code> instance
-///
+/// Starts typing. The other <em>members</em> in the channel will receive an event.
+/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
+- (void)startTyping;
+/// Ends typing. The other <em>members</em> in the channel will receive an event.
+/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
+- (void)endTyping;
+/// Checks any members in the channel has been typing
 ///
 /// returns:
-/// <code>GroupChannel</code> if parameter is valid, otherwise <code>nil</code>
-+ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-
-
-@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Sends the scheduled message now.
+/// <code>true</code> when other users are typing in this channel.
+- (BOOL)isTyping SWIFT_WARN_UNUSED_RESULT;
+/// Returns the users who are typing now.
 /// since:
-/// 4.0.0
-/// \param scheduledMessageId The scheduled message ID.
+/// 3.0.202
 ///
-/// \param completionHandler The handler block to be executed after sending the scheduled message or when an error occurs.
-///
-- (void)sendScheduledMessageNowWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
-/// Cancels the scheduled message.
-/// since:
-/// 4.0.0
-/// \param scheduledMessageId The scheduled message ID.
-///
-/// \param completionHandler The handler block to be executed after canceling the scheduled message or when an error occurs.
-///
-- (void)cancelScheduledMessageWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+/// returns:
+/// The users who are typing now.
+- (NSArray<SBDUser *> * _Nullable)getTypingUsers SWIFT_WARN_UNUSED_RESULT;
 @end
-
-
-
-
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -3498,28 +3529,28 @@ SWIFT_CLASS_NAMED("GroupChannel")
 - (void)setMyCountPreference:(enum SBDCountPreference)myCountPreference completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
 @end
 
+@class SBDMultipleFilesMessageCreateParams;
+@class SBDUploadableFileInfo;
+@class SBDMultipleFilesMessage;
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Starts typing. The other <em>members</em> in the channel will receive an event.
-/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
-- (void)startTyping;
-/// Ends typing. The other <em>members</em> in the channel will receive an event.
-/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
-- (void)endTyping;
-/// Checks any members in the channel has been typing
+/// Sends a multipleFilesMessage with files (file or file URL) of params.
+/// For binary files in params.files, the data will be uploaded to Sendbird storage.
+/// For URL files in params.files, the URLs will be sent in the message.
+/// \param params An intance of <code>MultipleFilesMessageCreateParams</code> that contains parameters needed to create a MultipleFilesMessage.
+///
+/// \param fileUploadHandler A handler block to be executed after each file is uploaded. This block has no return value, and takes four arguments:
+/// first is requestId of a file, second is the index of a file, third is the UploadableFileInfo, and the fourth is the error made
+/// when there is a problem in uploading the file. This handler is called for both file-based UploadableFileInfo and file URL-based UploadableFileInfo.
+///
+/// \param completionHandler A handler block to be executed after the message is sent. This block has no return value, and takes two arguments:
+/// one is a multipleFilesMessage that is sent, and the other is an error made when there is a problem in sending the message.
+///
 ///
 /// returns:
-/// <code>true</code> when other users are typing in this channel.
-- (BOOL)isTyping SWIFT_WARN_UNUSED_RESULT;
-/// Returns the users who are typing now.
-/// since:
-/// 3.0.202
-///
-/// returns:
-/// The users who are typing now.
-- (NSArray<SBDUser *> * _Nullable)getTypingUsers SWIFT_WARN_UNUSED_RESULT;
+/// A temporary multipleFilesMessage being sent to the Sendbird server. The sending status of the message is <code>pending</code>. The message has a request ID instead of a message ID.
+- (SBDMultipleFilesMessage * _Nullable)sendMultipleFilesMessageWithParams:(SBDMultipleFilesMessageCreateParams * _Nonnull)params fileUploadHandler:(void (^ _Nullable)(NSString * _Nonnull, NSInteger, SBDUploadableFileInfo * _Nonnull, SBError * _Nullable))fileUploadHandler completionHandler:(void (^ _Nonnull)(SBDMultipleFilesMessage * _Nullable, SBError * _Nullable))completionHandler;
 @end
-
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -3582,6 +3613,7 @@ SWIFT_CLASS_NAMED("GroupChannel")
 /// The read status. If there’s no data, it will be an empty dictionary.
 - (NSDictionary<NSString *, NSDictionary<NSString *, id> *> * _Nonnull)getReadStatusIncludingAllMembers:(BOOL)includeAllMembers SWIFT_WARN_UNUSED_RESULT;
 @end
+
 
 @class SBDGroupChannelCreateParams;
 @class SBDGroupChannelUpdateParams;
@@ -4708,10 +4740,10 @@ SWIFT_CLASS_NAMED("GroupChannelListQueryParams")
 @end
 
 
-
 @interface SBDGroupChannelListQueryParams (SWIFT_EXTENSION(SendbirdChatSDK))
 - (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
 @end
+
 
 
 @interface SBDGroupChannelListQueryParams (SWIFT_EXTENSION(SendbirdChatSDK)) <NSCopying>
@@ -4748,6 +4780,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) SBDGroupChan
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+/// The query type for <code>GroupChannelListQuery</code>.
 typedef SWIFT_ENUM_NAMED(NSInteger, SBDGroupChannelListQueryType, "GroupChannelListQueryType", open) {
   SBDGroupChannelListQueryTypeAnd = 0,
   SBDGroupChannelListQueryTypeOr = 1,
@@ -5019,12 +5052,16 @@ SWIFT_CLASS_NAMED("User")
 @property (nonatomic, readonly, copy) NSString * _Nullable friendDiscoveryKey;
 /// User name for friend
 @property (nonatomic, readonly, copy) NSString * _Nullable friendName;
+/// Shows if the user is a bot or not.
+/// since:
+/// 4.9.4
+@property (nonatomic, readonly) BOOL isBot;
 /// User’s preferred language. Used for translating messages.
 /// since:
 /// 3.0.159
 @property (nonatomic, copy) NSArray<NSString *> * _Nullable preferredLanguages;
 /// Meta data.
-@property (nonatomic, copy) NSDictionary<NSString *, NSString *> * _Nullable metaData;
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> * _Nonnull metaData;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -5567,10 +5604,11 @@ SWIFT_CLASS_NAMED("MessageListParams")
 @end
 
 
+
+
 @interface SBDMessageListParams (SWIFT_EXTENSION(SendbirdChatSDK))
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 @end
-
 
 
 /// The <code>MessageMetaArray</code> instance has a string type of key and an array type of value.
@@ -5917,6 +5955,61 @@ typedef SWIFT_ENUM_NAMED(NSInteger, SBDMessageTypeFilter, "MessageTypeFilter", o
 /// Filter of admin message.
   SBDMessageTypeFilterAdmin = 3,
 };
+
+@class SBDUploadedFileInfo;
+
+/// Represents a message object that contains multiple files. Derived from <code>BaseMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("MultipleFilesMessage")
+@interface SBDMultipleFilesMessage : SBDBaseMessage
+/// An array of files in this message.
+/// since:
+/// 4.9.1
+@property (nonatomic, copy) NSArray<SBDUploadedFileInfo *> * _Nonnull files;
+@property (nonatomic, readonly) BOOL isAutoResendable;
+- (nonnull instancetype)copyWithFailedStateWithErrorCode:(NSInteger)errorCode latestUploadableFileInfos:(NSArray<SBDUploadableFileInfo *> * _Nonnull)latestUploadableFileInfos SWIFT_WARN_UNUSED_RESULT;
+- (SBDMultipleFilesMessageCreateParams * _Nullable)getMultipleFilesMessageParams SWIFT_WARN_UNUSED_RESULT;
+- (void)dispose;
+@end
+
+
+
+@interface SBDMultipleFilesMessage (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Copies this object
+/// \param zone optional <code>NSZone</code>
+///
+///
+/// returns:
+/// <code>MultipleFilesMessage</code> instance
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// An object that contains a set of options to create <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("MultipleFilesMessageCreateParams")
+@interface SBDMultipleFilesMessageCreateParams : SBDBaseMessageCreateParams
+/// An array of file information to be included in a <code>MultipleFilesMessage</code>.
+@property (nonatomic, copy) NSArray<SBDUploadableFileInfo *> * _Nonnull uploadableFileInfoList;
+/// Initializes an instance of a multiple files message create params with uploadableFileInfoList.
+/// \param uploadableFileInfoList An array of information of files to be sent. <code>uploadableFileInfoList.count</code> should be at least 2, and no more than<code>multipleFilesMessageFileCountLimit</code>.
+///
+///
+/// returns:
+/// An initialized multiple files message create params
+- (nonnull instancetype)initWithUploadableFileInfoList:(NSArray<SBDUploadableFileInfo *> * _Nonnull)uploadableFileInfoList OBJC_DESIGNATED_INITIALIZER;
+/// Copies this object
+/// \param zone optional <code>NSZone</code>
+///
+///
+/// returns:
+/// <code>MultipleFilesMessageCreateParams</code> instance
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
 
 /// The current user’s muted state type.
 typedef SWIFT_ENUM_NAMED(NSInteger, SBDMutedState, "MutedState", open) {
@@ -6300,17 +6393,6 @@ SWIFT_CLASS_NAMED("OpenChannel")
 
 
 @interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deserializes and reconstructs the object
-/// \param data <code>Data</code> instance
-///
-///
-/// returns:
-/// <code>OpenChannel</code> if parameter is valid, otherwise <code>nil</code>
-+ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
 ///
@@ -6318,6 +6400,17 @@ SWIFT_CLASS_NAMED("OpenChannel")
 /// returns:
 /// <code>true</code> if same otherwise <code>false</code>
 - (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Deserializes and reconstructs the object
+/// \param data <code>Data</code> instance
+///
+///
+/// returns:
+/// <code>OpenChannel</code> if parameter is valid, otherwise <code>nil</code>
++ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -6866,10 +6959,23 @@ SWIFT_CLASS_NAMED("PinnedMessageListQuery")
 @property (nonatomic) BOOL isLoading;
 /// The number of pinned messages to retrieve.
 @property (nonatomic, readonly) NSInteger limit;
+/// A boolean flag that determines whether or not to include a meta array in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeMetaArray;
+/// A boolean flag that determines whether or not to include thread information in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeThreadInfo;
+/// A boolean flag that determines whether or not to include reactions in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeReactions;
+/// Determines whether a message includes the poll details or not.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includePollDetails;
+/// Determines wheter to include information on parent message.
+/// The default value is <code>false</code>.
+/// since:
+/// 4.8.2
+@property (nonatomic, readonly) BOOL includeParentMessageInfo;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER SWIFT_UNAVAILABLE_MSG("Use GroupChannel's `createPinnedMessageListQuery`");
 - (void)loadNextPageWithCompletionHandler:(void (^ _Nonnull)(NSArray<SBDPinnedMessage *> * _Nullable, SBError * _Nullable))completionHandler;
 /// Copies this object
@@ -6911,6 +7017,11 @@ SWIFT_CLASS_NAMED("PinnedMessageListQueryParams")
 /// since:
 /// 4.8.0
 @property (nonatomic) BOOL includePollDetails;
+/// Determines wheter to include information on parent message.
+/// Default is <code>false</code>.
+/// since:
+/// 4.8.2
+@property (nonatomic) BOOL includeParentMessageInfo;
 /// Default constructor.
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 /// Initializes and returns a newly allocated params object that mutated through builder closure.
@@ -7014,14 +7125,6 @@ SWIFT_CLASS_NAMED("Poll")
 @end
 
 
-@interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
-/// Initialize with json dictionary
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
-/// Converts the object into dictionary
-- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
 @interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Serializable>
 /// Serializes this object into data.
 ///
@@ -7035,6 +7138,14 @@ SWIFT_CLASS_NAMED("Poll")
 /// returns:
 /// <code>Poll</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
+/// Initialize with json dictionary
+- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
+/// Converts the object into dictionary
+- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -8462,6 +8573,13 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isInitializedWi
 /// \param appVersion The version of the app.
 ///
 + (void)setAppVersionWithVersion:(NSString * _Nullable)version;
+/// Gets the maximum number of files in a <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+///
+/// returns:
+/// multipleFilesMessageFileCountLimit
++ (NSInteger)getMultipleFilesMessageFileCountLimit SWIFT_WARN_UNUSED_RESULT;
 /// Initializes <code>SendbirdChat</code> singleton instance with Sendbird Application ID.
 /// The Application ID is on Sendbird dashboard. This method has to be run first in order to user Sendbird.
 /// since:
@@ -9023,12 +9141,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, copy) void (^ _Nullable backgr
 + (void)setNetworkAwarenessReconnection:(BOOL)isOn;
 /// Sendbird user agent information getter.
 + (NSString * _Nonnull)getSBUserAgent SWIFT_WARN_UNUSED_RESULT;
-/// Used to set the version information of the Sendbird SDK extension.
-/// \param key Extension sdk’s hidden key
-///
-/// \param version Extension sdk’s version string
-///
-+ (void)addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version;
 /// Initialize <code>sharedContainerIdentifier</code> of NSURLSessionConfiguration to use background
 /// session.
 /// important:
@@ -9221,7 +9333,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollListQuery</code> instance
 + (SBDPollListQuery * _Nonnull)createPollListQueryWithParams:(SBDPollListQueryParams * _Nonnull)params SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollListQuery</code>
 /// since:
@@ -9230,7 +9342,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollListQuery</code> instance.
 + (SBDPollListQuery * _Nonnull)createPollListQueryWithParamsBuilder:(SWIFT_NOESCAPE void (^ _Nonnull)(SBDPollListQueryParams * _Nonnull))paramsBuilder SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollVoterListQuery</code>
 /// since:
@@ -9239,7 +9351,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollVoterListQuery</code> instance.
 + (SBDPollVoterListQuery * _Nonnull)createPollVoterListQueryWithParams:(SBDPollVoterListQueryParams * _Nonnull)params SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollVoterListQuery</code> with paramsBuilder.
 /// \param paramsBuilder The builder closure for setting <code>GroupChannelListQueryParams</code>.
@@ -9300,6 +9412,22 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy, getter=default
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull alternative;)
 + (NSString * _Nonnull)alternative SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+@interface SendbirdChat (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Used to set the version information of the Sendbird SDK extension.
+/// \param key Extension sdk’s hidden key
+///
+/// \param version Extension sdk’s version string
+///
++ (void)__addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version;
+/// Used to set the version information of the Sendbird SDK extension.
+/// \param key Extension sdk’s hidden key
+///
+/// \param version Extension sdk’s version string
+///
++ (void)addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version SWIFT_DEPRECATED_MSG("This method is deprecated in 4.8.3", "__addExtension:version:");
 @end
 
 
@@ -9673,6 +9801,16 @@ SWIFT_CLASS_NAMED("TotalScheduledMessageCountParams")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+
+/// since:
+/// 4.8.4
+SWIFT_CLASS_NAMED("UIKitConfiguration")
+@interface SBDUIKitConfiguration : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull jsonPayload;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// The enum type to filter my group channels.
 /// since:
 /// 3.0.113
@@ -9867,6 +10005,73 @@ SWIFT_CLASS_NAMED("UpdatedVoteCount")
 @end
 
 
+/// An object that contains a set of options to create a single file inside the <code>files</code> in a <code>MultipleFilesMessage</code> instance.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("UploadableFileInfo")
+@interface SBDUploadableFileInfo : NSObject
+/// File URL. <code>file</code> and <code>fileURL</code> cannot be set together.
+@property (nonatomic, readonly, copy) NSString * _Nullable fileURL;
+/// Binary file data. <code>file</code> and <code>fileURL</code> cannot be set together.
+@property (nonatomic, copy) NSData * _Nullable file;
+/// File size.
+@property (nonatomic) NSUInteger fileSize;
+/// Thumbnail sizes. This parameter is an array of <code>ThumbnailSize</code> instance and works for image file only.
+@property (nonatomic, copy) NSArray<SBDThumbnailSize *> * _Nullable thumbnailSizes;
+/// File name.
+@property (nonatomic, copy) NSString * _Nullable fileName;
+/// File MIME type.
+@property (nonatomic, copy) NSString * _Nullable mimeType;
+/// Initializes an instace of UploadableFileInfo with binary file data.
+/// \param file A binary file to be sent. The size of the file should be no bigger than the app’s file upload size limit.
+///
+///
+/// returns:
+/// An initialized UploadableFileInfo
+- (nonnull instancetype)initWithFile:(NSData * _Nonnull)file OBJC_DESIGNATED_INITIALIZER;
+/// Initializes an instace of UploadableFileInfo with a file URL.
+/// \param fileURL A file URL to be sent
+///
+///
+/// returns:
+/// An initialized UploadableFileInfo
+- (nonnull instancetype)initWithFileURL:(NSString * _Nonnull)fileURL OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// An object that contains a set of information of a single file that finished being uploaded inside <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("UploadedFileInfo")
+@interface SBDUploadedFileInfo : NSObject <NSCopying>
+/// The file URL.
+@property (nonatomic, readonly, copy) NSString * _Nonnull url;
+/// The file URL without the ekey.
+@property (nonatomic, readonly, copy) NSString * _Nonnull plainURL;
+/// The name of file.
+@property (nonatomic, readonly, copy) NSString * _Nullable fileName;
+/// The type of file.
+@property (nonatomic, readonly, copy) NSString * _Nullable mimeType;
+/// The size of file.
+@property (nonatomic, readonly) NSUInteger fileSize;
+/// Image thumbnails.
+@property (nonatomic, copy) NSArray<SBDThumbnail *> * _Nullable thumbnails;
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
+@interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
+/// Initialize with json dictionary
+- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
+/// Converts the object into dictionary
+- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
+@end
+
 
 @interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <NSCopying>
 /// Compares this object with given other object.
@@ -9899,14 +10104,6 @@ SWIFT_CLASS_NAMED("UpdatedVoteCount")
 /// returns:
 /// <code>User</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
-/// Initialize with json dictionary
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
-/// Converts the object into dictionary
-- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -10042,17 +10239,6 @@ SWIFT_CLASS_NAMED("UserMessage")
 
 
 @interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Compares this object with given other object.
-/// \param object <code>Any</code> instance
-///
-///
-/// returns:
-/// <code>true</code> if same otherwise <code>false</code>
-- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Deserializes and reconstructs the object
 /// \param data <code>Data</code> instance
 ///
@@ -10060,6 +10246,17 @@ SWIFT_CLASS_NAMED("UserMessage")
 /// returns:
 /// <code>UserMessage</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Compares this object with given other object.
+/// \param object <code>Any</code> instance
+///
+///
+/// returns:
+/// <code>true</code> if same otherwise <code>false</code>
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -10579,10 +10776,10 @@ SWIFT_CLASS_NAMED("AppInfo")
 /// since:
 /// 3.0.180
 @property (nonatomic, copy) NSString * _Nonnull emojiHash;
-/// This is the uploadable file size limit. (The unit is bytes.)
+/// This is the uploadable file size limit. (When receiving this value from the server, the unit is bytes.)
 /// since:
 /// 3.0.180
-@property (nonatomic) int64_t uploadSizeLimit;
+@property (nonatomic, readonly) int64_t uploadSizeLimit;
 /// This is the premium feature list using on your Application ID.
 /// since:
 /// 3.0.180
@@ -10608,6 +10805,10 @@ SWIFT_CLASS_NAMED("AppInfo")
 /// since:
 /// 4.6.0
 @property (nonatomic, strong) SBDNotificationInfo * _Nullable notificationInfo;
+/// The maximum number of files that can be sent in a <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+@property (nonatomic, readonly) NSInteger multipleFilesMessageFileCountLimit;
 /// This function can check if Emoji information needs to be updated to date.
 /// since:
 /// 3.0.180
@@ -10824,7 +11025,7 @@ SWIFT_CLASS_NAMED("BaseChannel")
 /// since:
 /// 3.0.199
 @property (nonatomic, strong) SBDUser * _Nullable creator;
-/// The timestamp when the channel is created.
+/// The timestamp when the channel is created in seconds.
 @property (nonatomic) int64_t createdAt;
 /// The custom data of the channel.
 @property (nonatomic, copy) NSString * _Nullable data;
@@ -10876,6 +11077,7 @@ SWIFT_CLASS_NAMED("BaseChannel")
 @end
 
 
+
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
@@ -10887,33 +11089,23 @@ SWIFT_CLASS_NAMED("BaseChannel")
 @end
 
 
-@class SBDMessageListParams;
+
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Retrieves previous or next messages based on a specified timestamp in the channel.
+/// Deletes a message. The message’s sender has to be the current user.
+/// \param message The message to be deleted.
+///
+/// \param completionHandler The handler block to execute.
+///
+- (void)deleteMessage:(SBDBaseMessage * _Nonnull)message completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Deletes a message. The message’s sender has to be the current user.
 /// since:
-/// 3.0.181
-/// \param timestamp Specifies the timestamp to be the reference point for messages to retrieve, in Unix
-/// milliseconds format. Messages sent before or after the timestamp can be retrieved.
+/// 3.0.179
+/// \param messageId The message ID to be deleted.
 ///
-/// \param params Contains a set of parameters you can set regarding the messages in the results.
+/// \param completionHandler The handler block to execute.
 ///
-/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
-/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
-///
-- (void)getMessagesByTimestamp:(int64_t)timestamp params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
-/// Retrieves previous or next messages based on their message ID in a specific channel.
-/// since:
-/// 3.0.181
-/// \param messageId Specifies the message ID to be the reference point for messages to retrieve.
-/// Messages sent before or after the message with the matching message ID can be retrieved.
-///
-/// \param params Contains a set of parameters you can set regarding the messages in the results.
-///
-/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
-/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
-///
-- (void)getMessagesByMessageId:(int64_t)messageId params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
+- (void)deleteMessageWithMessageId:(int64_t)messageId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
 @end
 
 @class SBDReactionEvent;
@@ -10951,25 +11143,34 @@ SWIFT_CLASS_NAMED("BaseChannel")
 - (void)deleteReactionWithMessage:(SBDBaseMessage * _Nonnull)message key:(NSString * _Nonnull)key completionHandler:(void (^ _Nullable)(SBDReactionEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
-
+@class SBDMessageListParams;
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deletes a message. The message’s sender has to be the current user.
-/// \param message The message to be deleted.
-///
-/// \param completionHandler The handler block to execute.
-///
-- (void)deleteMessage:(SBDBaseMessage * _Nonnull)message completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Deletes a message. The message’s sender has to be the current user.
+/// Retrieves previous or next messages based on a specified timestamp in the channel.
 /// since:
-/// 3.0.179
-/// \param messageId The message ID to be deleted.
+/// 3.0.181
+/// \param timestamp Specifies the timestamp to be the reference point for messages to retrieve, in Unix
+/// milliseconds format. Messages sent before or after the timestamp can be retrieved.
 ///
-/// \param completionHandler The handler block to execute.
+/// \param params Contains a set of parameters you can set regarding the messages in the results.
 ///
-- (void)deleteMessageWithMessageId:(int64_t)messageId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
+/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
+///
+- (void)getMessagesByTimestamp:(int64_t)timestamp params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
+/// Retrieves previous or next messages based on their message ID in a specific channel.
+/// since:
+/// 3.0.181
+/// \param messageId Specifies the message ID to be the reference point for messages to retrieve.
+/// Messages sent before or after the message with the matching message ID can be retrieved.
+///
+/// \param params Contains a set of parameters you can set regarding the messages in the results.
+///
+/// \param completionHandler The handler block to be executed. The <code>messages</code> is the messages
+/// of the channel. The <code>error</code> indicates whether there is an error. If there is no error, the value is null.
+///
+- (void)getMessagesByMessageId:(int64_t)messageId params:(SBDMessageListParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, SBError * _Nullable))completionHandler;
 @end
-
 
 
 /// Mappable protocol to initialize sendbird object from a given dictionary.
@@ -11025,7 +11226,6 @@ SWIFT_PROTOCOL("_TtP15SendbirdChatSDK12Serializable_")
 /// <code>BaseChannel</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
 @end
-
 
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -11100,6 +11300,7 @@ enum SBDReportCategory : NSInteger;
 @property (nonatomic, readonly, copy) NSString * _Nullable channelUrl SWIFT_UNAVAILABLE_MSG("'channelUrl' has been renamed to 'channelURL'");
 @property (nonatomic, readonly, copy) NSString * _Nullable coverUrl SWIFT_UNAVAILABLE_MSG("'coverUrl' has been renamed to 'coverURL'");
 @end
+
 
 
 @interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -11218,7 +11419,6 @@ enum SBDReportCategory : NSInteger;
 /// no error, the value is <code>nil</code>.
 ///
 - (void)getMessageChangeLogsSinceTimestamp:(int64_t)timestamp params:(SBDMessageChangeLogsParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-- (void)getMessageChangeLogsWithToken:(NSString * _Nullable)token timestamp:(int64_t)timestamp params:(SBDMessageChangeLogsParams * _Nonnull)params completionHandler:(void (^ _Nullable)(NSArray<SBDBaseMessage *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
 /// Retrieves the changelogs since a specified token regarding the updated polls or the unique IDs
 /// of deleted polls in the channel.
 /// since:
@@ -11245,81 +11445,6 @@ enum SBDReportCategory : NSInteger;
 /// an error. If there is no error, the value is <code>nil</code>.
 ///
 - (void)getPollChangeLogsWithTimestamp:(int64_t)timestamp completionHandler:(void (^ _Nullable)(NSArray<SBDPoll *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-- (void)getPollChangeLogsWithToken:(NSString * _Nullable)token timestamp:(int64_t)timestamp completionHandler:(void (^ _Nullable)(NSArray<SBDPoll *> * _Nullable, NSArray<NSNumber *> * _Nullable, BOOL, NSString * _Nullable, SBError * _Nullable))completionHandler;
-@end
-
-@class SBDPollUpdateParams;
-@class SBDPollVoteEvent;
-
-@interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Updates a poll with params.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to update
-///
-/// \param params <code>PollUpdateParams</code> instance.
-///
-/// \param completionHandler Completion block.
-///
-- (void)updatePollWithPollId:(int64_t)pollId params:(SBDPollUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Deletes a poll.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to remove
-///
-/// \param completionHandler Completion block.
-///
-- (void)deletePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Closes a poll.
-/// since:
-/// 4.5.0
-/// \param pollId ID of Poll to close
-///
-/// \param completionHandler 
-///
-- (void)closePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Adds an option to a poll.
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param optionText 
-///
-/// \param completionHandler 
-///
-- (void)addPollOptionWithPollId:(int64_t)pollId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Updates an option to a poll.
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionId 
-///
-/// \param optionText 
-///
-/// \param completionHandler 
-///
-- (void)updatePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
-/// Removes Poll option
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionId poll option id to delete
-///
-/// \param completionHandler 
-///
-- (void)deletePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Votes poll
-/// since:
-/// 4.5.0
-/// \param pollId 
-///
-/// \param pollOptionIds 
-///
-/// \param completionHandler 
-///
-- (void)votePollWithPollId:(int64_t)pollId pollOptionIds:(NSArray<NSNumber *> * _Nonnull)pollOptionIds completionHandler:(void (^ _Nullable)(SBDPollVoteEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
 @class SBDUserMessage;
@@ -11415,6 +11540,80 @@ enum SBDReportCategory : NSInteger;
 /// Another factor is an error. If failed to request, an error is dispatched.
 ///
 - (void)translateUserMessage:(SBDUserMessage * _Nonnull)message targetLanguages:(NSArray<NSString *> * _Nonnull)targetLanguages completionHandler:(void (^ _Nullable)(SBDUserMessage * _Nullable, SBError * _Nullable))completionHandler;
+@end
+
+@class SBDPollUpdateParams;
+@class SBDPollVoteEvent;
+
+@interface SBDBaseChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Updates a poll with params.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to update
+///
+/// \param params <code>PollUpdateParams</code> instance.
+///
+/// \param completionHandler Completion block.
+///
+- (void)updatePollWithPollId:(int64_t)pollId params:(SBDPollUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Deletes a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to remove
+///
+/// \param completionHandler Completion block.
+///
+- (void)deletePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Closes a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to close
+///
+/// \param completionHandler Completion block
+///
+- (void)closePollWithPollId:(int64_t)pollId completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Adds an option to a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of Poll to add the poll option
+///
+/// \param optionText Option text of the poll option
+///
+/// \param completionHandler Completion block
+///
+- (void)addPollOptionWithPollId:(int64_t)pollId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Updates an option to a poll.
+/// since:
+/// 4.5.0
+/// \param pollId ID of poll to update the poll option
+///
+/// \param pollOptionId ID of the poll option
+///
+/// \param optionText Option text of the poll option
+///
+/// \param completionHandler Completion block
+///
+- (void)updatePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId optionText:(NSString * _Nonnull)optionText completionHandler:(void (^ _Nullable)(SBDPoll * _Nullable, SBError * _Nullable))completionHandler;
+/// Removes Poll option
+/// since:
+/// 4.5.0
+/// \param pollId ID of the poll to delete poll option of
+///
+/// \param pollOptionId poll option id to delete
+///
+/// \param completionHandler Completion block
+///
+- (void)deletePollOptionWithPollId:(int64_t)pollId pollOptionId:(int64_t)pollOptionId completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Votes poll
+/// since:
+/// 4.5.0
+/// \param pollId Poll ID to vote
+///
+/// \param pollOptionIds List of poll option IDs to vote
+///
+/// \param completionHandler Completion block
+///
+- (void)votePollWithPollId:(int64_t)pollId pollOptionIds:(NSArray<NSNumber *> * _Nonnull)pollOptionIds completionHandler:(void (^ _Nullable)(SBDPollVoteEvent * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
 
@@ -11630,7 +11829,7 @@ enum SBDReportCategory : NSInteger;
 ///
 /// returns:
 /// Returns a temporary file message being sent to the Sendbird server. The message has a request ID instead of a message ID.
-/// The request status of the message is pending. If you try to send a message with an invalid parameter, the returned message is a user
+/// The request status of the message is pending. If you try to send a message with an invalid parameter, the returned message is a file
 /// message with no properties. You can perform a validation of pending message by checking for the existence of the request ID.
 - (SBDFileMessage * _Nullable)sendFileMessageWithParams:(SBDFileMessageCreateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDFileMessage * _Nullable, SBError * _Nullable))completionHandler;
 /// Sends a file message with file or file URL of params without progress.
@@ -12231,13 +12430,13 @@ SWIFT_CLASS_NAMED("BaseCollection")
 @end
 
 
+
 @interface SBDBaseMessage (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
 /// Initialize with json dictionary
 - (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
 /// Converts the object into dictionary
 - (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
-
 
 
 @interface SBDBaseMessage (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -12663,6 +12862,7 @@ typedef SWIFT_ENUM_NAMED(NSInteger, SBDChannelType, "ChannelType", open) {
   SBDChannelTypeFeed = 2,
 };
 
+/// Chat Error code
 typedef SWIFT_ENUM_NAMED(NSInteger, SBChatError, "ChatError", open) {
   SBChatErrorInvalidParameterValueString = 400100,
   SBChatErrorInvalidParameterValueNumber = 400101,
@@ -12901,6 +13101,7 @@ SWIFT_CLASS_NAMED("DeliveryStatus")
 @end
 
 
+
 /// Class to represent emoji
 /// since:
 /// 3.0.180
@@ -13100,6 +13301,12 @@ SWIFT_CLASS_NAMED("FeedChannelListQuery")
 
 
 @interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Determines channel list includes empty channel. Default is <code>true</code>
+@property (nonatomic, readonly) BOOL includeEmptyChannel;
+@end
+
+
+@interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Copies this object
 /// \param zone optional <code>NSZone</code>
 ///
@@ -13107,12 +13314,6 @@ SWIFT_CLASS_NAMED("FeedChannelListQuery")
 /// returns:
 /// <code>FeedChannelListQuery</code> instance
 - (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDFeedChannelListQuery (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Determines channel list includes empty channel. Default is <code>true</code>
-@property (nonatomic, readonly) BOOL includeEmptyChannel;
 @end
 
 
@@ -13160,6 +13361,9 @@ SWIFT_CLASS_NAMED("FileMessage")
 @property (nonatomic, copy) NSArray<SBDThumbnail *> * _Nullable thumbnails;
 @property (nonatomic, strong) SBDMessageRequestState * _Nullable requestState SWIFT_UNAVAILABLE_MSG("This property has been removed.");
 - (SBDFileMessageCreateParams * _Nullable)getFileMessageParams SWIFT_WARN_UNUSED_RESULT;
+/// Disposes of the binary data in the file cache directory. The file message’s pending or failed message could have binary data in the <code>messageParams</code> property. The binary data could be used for the message preview or resending a failed message, so the binary data is stored in the file cache directory temporally. The binary data will be removed later automatically. If the binary data is needed to be removed when the pending or the failed file message is not used any more, this method could be called.
+/// since:
+/// 4.0.14
 - (void)dispose;
 @end
 
@@ -13476,6 +13680,9 @@ SWIFT_CLASS_NAMED("GroupChannel")
 
 
 
+
+
+
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
@@ -13541,6 +13748,54 @@ SWIFT_CLASS_NAMED("GroupChannel")
 - (void)updateScheduledUserMessageWithScheduledMessageId:(int64_t)scheduledMessageId userMessageParams:(SBDScheduledUserMessageUpdateParams * _Nonnull)params completionHandler:(void (^ _Nullable)(SBDUserMessage * _Nullable, SBError * _Nullable))completionHandler;
 @end
 
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Deserializes and reconstructs the object
+/// \param data <code>Data</code> instance
+///
+///
+/// returns:
+/// <code>GroupChannel</code> if parameter is valid, otherwise <code>nil</code>
++ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Freeze the channel. If channel is frozen, only operators can send messages to the channel.
+/// since:
+/// 3.0.89
+/// \param completionHandler The handler block to be executed after freeze.
+///
+- (void)freezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+/// Stop to freeze the channel. If It is not frozen channel, this will be ignored.
+/// since:
+/// 3.0.89
+/// \param completionHandler The handler block to be executed after stop to freeze.
+///
+- (void)unfreezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
+@end
+
+
+@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Sends the scheduled message now.
+/// since:
+/// 4.0.0
+/// \param scheduledMessageId The scheduled message ID.
+///
+/// \param completionHandler The handler block to be executed after sending the scheduled message or when an error occurs.
+///
+- (void)sendScheduledMessageNowWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+/// Cancels the scheduled message.
+/// since:
+/// 4.0.0
+/// \param scheduledMessageId The scheduled message ID.
+///
+/// \param completionHandler The handler block to be executed after canceling the scheduled message or when an error occurs.
+///
+- (void)cancelScheduledMessageWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+@end
+
 @class SBDScheduledFileMessageUpdateParams;
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -13580,57 +13835,30 @@ SWIFT_CLASS_NAMED("GroupChannel")
 @end
 
 
-@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Freeze the channel. If channel is frozen, only operators can send messages to the channel.
-/// since:
-/// 3.0.89
-/// \param completionHandler The handler block to be executed after freeze.
-///
-- (void)freezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-/// Stop to freeze the channel. If It is not frozen channel, this will be ignored.
-/// since:
-/// 3.0.89
-/// \param completionHandler The handler block to be executed after stop to freeze.
-///
-- (void)unfreezeWithCompletionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
-@end
+
+
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deserializes and reconstructs the object
-/// \param data <code>Data</code> instance
-///
+/// Starts typing. The other <em>members</em> in the channel will receive an event.
+/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
+- (void)startTyping;
+/// Ends typing. The other <em>members</em> in the channel will receive an event.
+/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
+- (void)endTyping;
+/// Checks any members in the channel has been typing
 ///
 /// returns:
-/// <code>GroupChannel</code> if parameter is valid, otherwise <code>nil</code>
-+ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-
-
-@interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Sends the scheduled message now.
+/// <code>true</code> when other users are typing in this channel.
+- (BOOL)isTyping SWIFT_WARN_UNUSED_RESULT;
+/// Returns the users who are typing now.
 /// since:
-/// 4.0.0
-/// \param scheduledMessageId The scheduled message ID.
+/// 3.0.202
 ///
-/// \param completionHandler The handler block to be executed after sending the scheduled message or when an error occurs.
-///
-- (void)sendScheduledMessageNowWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
-/// Cancels the scheduled message.
-/// since:
-/// 4.0.0
-/// \param scheduledMessageId The scheduled message ID.
-///
-/// \param completionHandler The handler block to be executed after canceling the scheduled message or when an error occurs.
-///
-- (void)cancelScheduledMessageWithScheduledMessageId:(int64_t)scheduledMessageId completionHandler:(void (^ _Nonnull)(SBError * _Nullable))completionHandler;
+/// returns:
+/// The users who are typing now.
+- (NSArray<SBDUser *> * _Nullable)getTypingUsers SWIFT_WARN_UNUSED_RESULT;
 @end
-
-
-
-
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -13662,28 +13890,28 @@ SWIFT_CLASS_NAMED("GroupChannel")
 - (void)setMyCountPreference:(enum SBDCountPreference)myCountPreference completionHandler:(void (^ _Nullable)(SBError * _Nullable))completionHandler;
 @end
 
+@class SBDMultipleFilesMessageCreateParams;
+@class SBDUploadableFileInfo;
+@class SBDMultipleFilesMessage;
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Starts typing. The other <em>members</em> in the channel will receive an event.
-/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
-- (void)startTyping;
-/// Ends typing. The other <em>members</em> in the channel will receive an event.
-/// The event will be received in <code>channelDidUpdateTypingStatus(_:)</code> of <code>GroupChannelDelegate</code>.
-- (void)endTyping;
-/// Checks any members in the channel has been typing
+/// Sends a multipleFilesMessage with files (file or file URL) of params.
+/// For binary files in params.files, the data will be uploaded to Sendbird storage.
+/// For URL files in params.files, the URLs will be sent in the message.
+/// \param params An intance of <code>MultipleFilesMessageCreateParams</code> that contains parameters needed to create a MultipleFilesMessage.
+///
+/// \param fileUploadHandler A handler block to be executed after each file is uploaded. This block has no return value, and takes four arguments:
+/// first is requestId of a file, second is the index of a file, third is the UploadableFileInfo, and the fourth is the error made
+/// when there is a problem in uploading the file. This handler is called for both file-based UploadableFileInfo and file URL-based UploadableFileInfo.
+///
+/// \param completionHandler A handler block to be executed after the message is sent. This block has no return value, and takes two arguments:
+/// one is a multipleFilesMessage that is sent, and the other is an error made when there is a problem in sending the message.
+///
 ///
 /// returns:
-/// <code>true</code> when other users are typing in this channel.
-- (BOOL)isTyping SWIFT_WARN_UNUSED_RESULT;
-/// Returns the users who are typing now.
-/// since:
-/// 3.0.202
-///
-/// returns:
-/// The users who are typing now.
-- (NSArray<SBDUser *> * _Nullable)getTypingUsers SWIFT_WARN_UNUSED_RESULT;
+/// A temporary multipleFilesMessage being sent to the Sendbird server. The sending status of the message is <code>pending</code>. The message has a request ID instead of a message ID.
+- (SBDMultipleFilesMessage * _Nullable)sendMultipleFilesMessageWithParams:(SBDMultipleFilesMessageCreateParams * _Nonnull)params fileUploadHandler:(void (^ _Nullable)(NSString * _Nonnull, NSInteger, SBDUploadableFileInfo * _Nonnull, SBError * _Nullable))fileUploadHandler completionHandler:(void (^ _Nonnull)(SBDMultipleFilesMessage * _Nullable, SBError * _Nullable))completionHandler;
 @end
-
 
 
 @interface SBDGroupChannel (SWIFT_EXTENSION(SendbirdChatSDK))
@@ -13746,6 +13974,7 @@ SWIFT_CLASS_NAMED("GroupChannel")
 /// The read status. If there’s no data, it will be an empty dictionary.
 - (NSDictionary<NSString *, NSDictionary<NSString *, id> *> * _Nonnull)getReadStatusIncludingAllMembers:(BOOL)includeAllMembers SWIFT_WARN_UNUSED_RESULT;
 @end
+
 
 @class SBDGroupChannelCreateParams;
 @class SBDGroupChannelUpdateParams;
@@ -14872,10 +15101,10 @@ SWIFT_CLASS_NAMED("GroupChannelListQueryParams")
 @end
 
 
-
 @interface SBDGroupChannelListQueryParams (SWIFT_EXTENSION(SendbirdChatSDK))
 - (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
 @end
+
 
 
 @interface SBDGroupChannelListQueryParams (SWIFT_EXTENSION(SendbirdChatSDK)) <NSCopying>
@@ -14912,6 +15141,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) SBDGroupChan
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+/// The query type for <code>GroupChannelListQuery</code>.
 typedef SWIFT_ENUM_NAMED(NSInteger, SBDGroupChannelListQueryType, "GroupChannelListQueryType", open) {
   SBDGroupChannelListQueryTypeAnd = 0,
   SBDGroupChannelListQueryTypeOr = 1,
@@ -15183,12 +15413,16 @@ SWIFT_CLASS_NAMED("User")
 @property (nonatomic, readonly, copy) NSString * _Nullable friendDiscoveryKey;
 /// User name for friend
 @property (nonatomic, readonly, copy) NSString * _Nullable friendName;
+/// Shows if the user is a bot or not.
+/// since:
+/// 4.9.4
+@property (nonatomic, readonly) BOOL isBot;
 /// User’s preferred language. Used for translating messages.
 /// since:
 /// 3.0.159
 @property (nonatomic, copy) NSArray<NSString *> * _Nullable preferredLanguages;
 /// Meta data.
-@property (nonatomic, copy) NSDictionary<NSString *, NSString *> * _Nullable metaData;
+@property (nonatomic, readonly, copy) NSDictionary<NSString *, NSString *> * _Nonnull metaData;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -15731,10 +15965,11 @@ SWIFT_CLASS_NAMED("MessageListParams")
 @end
 
 
+
+
 @interface SBDMessageListParams (SWIFT_EXTENSION(SendbirdChatSDK))
 @property (nonatomic, readonly, copy) NSString * _Nonnull description;
 @end
-
 
 
 /// The <code>MessageMetaArray</code> instance has a string type of key and an array type of value.
@@ -16081,6 +16316,61 @@ typedef SWIFT_ENUM_NAMED(NSInteger, SBDMessageTypeFilter, "MessageTypeFilter", o
 /// Filter of admin message.
   SBDMessageTypeFilterAdmin = 3,
 };
+
+@class SBDUploadedFileInfo;
+
+/// Represents a message object that contains multiple files. Derived from <code>BaseMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("MultipleFilesMessage")
+@interface SBDMultipleFilesMessage : SBDBaseMessage
+/// An array of files in this message.
+/// since:
+/// 4.9.1
+@property (nonatomic, copy) NSArray<SBDUploadedFileInfo *> * _Nonnull files;
+@property (nonatomic, readonly) BOOL isAutoResendable;
+- (nonnull instancetype)copyWithFailedStateWithErrorCode:(NSInteger)errorCode latestUploadableFileInfos:(NSArray<SBDUploadableFileInfo *> * _Nonnull)latestUploadableFileInfos SWIFT_WARN_UNUSED_RESULT;
+- (SBDMultipleFilesMessageCreateParams * _Nullable)getMultipleFilesMessageParams SWIFT_WARN_UNUSED_RESULT;
+- (void)dispose;
+@end
+
+
+
+@interface SBDMultipleFilesMessage (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Copies this object
+/// \param zone optional <code>NSZone</code>
+///
+///
+/// returns:
+/// <code>MultipleFilesMessage</code> instance
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+/// An object that contains a set of options to create <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("MultipleFilesMessageCreateParams")
+@interface SBDMultipleFilesMessageCreateParams : SBDBaseMessageCreateParams
+/// An array of file information to be included in a <code>MultipleFilesMessage</code>.
+@property (nonatomic, copy) NSArray<SBDUploadableFileInfo *> * _Nonnull uploadableFileInfoList;
+/// Initializes an instance of a multiple files message create params with uploadableFileInfoList.
+/// \param uploadableFileInfoList An array of information of files to be sent. <code>uploadableFileInfoList.count</code> should be at least 2, and no more than<code>multipleFilesMessageFileCountLimit</code>.
+///
+///
+/// returns:
+/// An initialized multiple files message create params
+- (nonnull instancetype)initWithUploadableFileInfoList:(NSArray<SBDUploadableFileInfo *> * _Nonnull)uploadableFileInfoList OBJC_DESIGNATED_INITIALIZER;
+/// Copies this object
+/// \param zone optional <code>NSZone</code>
+///
+///
+/// returns:
+/// <code>MultipleFilesMessageCreateParams</code> instance
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
 
 /// The current user’s muted state type.
 typedef SWIFT_ENUM_NAMED(NSInteger, SBDMutedState, "MutedState", open) {
@@ -16464,17 +16754,6 @@ SWIFT_CLASS_NAMED("OpenChannel")
 
 
 @interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Deserializes and reconstructs the object
-/// \param data <code>Data</code> instance
-///
-///
-/// returns:
-/// <code>OpenChannel</code> if parameter is valid, otherwise <code>nil</code>
-+ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Compares this object with given other object.
 /// \param object <code>Any</code> instance
 ///
@@ -16482,6 +16761,17 @@ SWIFT_CLASS_NAMED("OpenChannel")
 /// returns:
 /// <code>true</code> if same otherwise <code>false</code>
 - (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDOpenChannel (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Deserializes and reconstructs the object
+/// \param data <code>Data</code> instance
+///
+///
+/// returns:
+/// <code>OpenChannel</code> if parameter is valid, otherwise <code>nil</code>
++ (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -17030,10 +17320,23 @@ SWIFT_CLASS_NAMED("PinnedMessageListQuery")
 @property (nonatomic) BOOL isLoading;
 /// The number of pinned messages to retrieve.
 @property (nonatomic, readonly) NSInteger limit;
+/// A boolean flag that determines whether or not to include a meta array in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeMetaArray;
+/// A boolean flag that determines whether or not to include thread information in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeThreadInfo;
+/// A boolean flag that determines whether or not to include reactions in the message.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includeReactions;
+/// Determines whether a message includes the poll details or not.
+/// The default value is <code>false</code>.
 @property (nonatomic, readonly) BOOL includePollDetails;
+/// Determines wheter to include information on parent message.
+/// The default value is <code>false</code>.
+/// since:
+/// 4.8.2
+@property (nonatomic, readonly) BOOL includeParentMessageInfo;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER SWIFT_UNAVAILABLE_MSG("Use GroupChannel's `createPinnedMessageListQuery`");
 - (void)loadNextPageWithCompletionHandler:(void (^ _Nonnull)(NSArray<SBDPinnedMessage *> * _Nullable, SBError * _Nullable))completionHandler;
 /// Copies this object
@@ -17075,6 +17378,11 @@ SWIFT_CLASS_NAMED("PinnedMessageListQueryParams")
 /// since:
 /// 4.8.0
 @property (nonatomic) BOOL includePollDetails;
+/// Determines wheter to include information on parent message.
+/// Default is <code>false</code>.
+/// since:
+/// 4.8.2
+@property (nonatomic) BOOL includeParentMessageInfo;
 /// Default constructor.
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 /// Initializes and returns a newly allocated params object that mutated through builder closure.
@@ -17178,14 +17486,6 @@ SWIFT_CLASS_NAMED("Poll")
 @end
 
 
-@interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
-/// Initialize with json dictionary
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
-/// Converts the object into dictionary
-- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
 @interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Serializable>
 /// Serializes this object into data.
 ///
@@ -17199,6 +17499,14 @@ SWIFT_CLASS_NAMED("Poll")
 /// returns:
 /// <code>Poll</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDPoll (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
+/// Initialize with json dictionary
+- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
+/// Converts the object into dictionary
+- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -18626,6 +18934,13 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isInitializedWi
 /// \param appVersion The version of the app.
 ///
 + (void)setAppVersionWithVersion:(NSString * _Nullable)version;
+/// Gets the maximum number of files in a <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+///
+/// returns:
+/// multipleFilesMessageFileCountLimit
++ (NSInteger)getMultipleFilesMessageFileCountLimit SWIFT_WARN_UNUSED_RESULT;
 /// Initializes <code>SendbirdChat</code> singleton instance with Sendbird Application ID.
 /// The Application ID is on Sendbird dashboard. This method has to be run first in order to user Sendbird.
 /// since:
@@ -19187,12 +19502,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, copy) void (^ _Nullable backgr
 + (void)setNetworkAwarenessReconnection:(BOOL)isOn;
 /// Sendbird user agent information getter.
 + (NSString * _Nonnull)getSBUserAgent SWIFT_WARN_UNUSED_RESULT;
-/// Used to set the version information of the Sendbird SDK extension.
-/// \param key Extension sdk’s hidden key
-///
-/// \param version Extension sdk’s version string
-///
-+ (void)addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version;
 /// Initialize <code>sharedContainerIdentifier</code> of NSURLSessionConfiguration to use background
 /// session.
 /// important:
@@ -19385,7 +19694,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollListQuery</code> instance
 + (SBDPollListQuery * _Nonnull)createPollListQueryWithParams:(SBDPollListQueryParams * _Nonnull)params SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollListQuery</code>
 /// since:
@@ -19394,7 +19703,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollListQuery</code> instance.
 + (SBDPollListQuery * _Nonnull)createPollListQueryWithParamsBuilder:(SWIFT_NOESCAPE void (^ _Nonnull)(SBDPollListQueryParams * _Nonnull))paramsBuilder SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollVoterListQuery</code>
 /// since:
@@ -19403,7 +19712,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly) BOOL isLocalCachingE
 ///
 ///
 /// returns:
-///
+/// <code>PollVoterListQuery</code> instance.
 + (SBDPollVoterListQuery * _Nonnull)createPollVoterListQueryWithParams:(SBDPollVoterListQueryParams * _Nonnull)params SWIFT_WARN_UNUSED_RESULT;
 /// Creates <code>PollVoterListQuery</code> with paramsBuilder.
 /// \param paramsBuilder The builder closure for setting <code>GroupChannelListQueryParams</code>.
@@ -19464,6 +19773,22 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy, getter=default
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, copy) NSString * _Nonnull alternative;)
 + (NSString * _Nonnull)alternative SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+@interface SendbirdChat (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Used to set the version information of the Sendbird SDK extension.
+/// \param key Extension sdk’s hidden key
+///
+/// \param version Extension sdk’s version string
+///
++ (void)__addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version;
+/// Used to set the version information of the Sendbird SDK extension.
+/// \param key Extension sdk’s hidden key
+///
+/// \param version Extension sdk’s version string
+///
++ (void)addExtension:(NSString * _Nonnull)key version:(NSString * _Nonnull)version SWIFT_DEPRECATED_MSG("This method is deprecated in 4.8.3", "__addExtension:version:");
 @end
 
 
@@ -19837,6 +20162,16 @@ SWIFT_CLASS_NAMED("TotalScheduledMessageCountParams")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+
+/// since:
+/// 4.8.4
+SWIFT_CLASS_NAMED("UIKitConfiguration")
+@interface SBDUIKitConfiguration : NSObject
+@property (nonatomic, readonly, copy) NSString * _Nonnull jsonPayload;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
 /// The enum type to filter my group channels.
 /// since:
 /// 3.0.113
@@ -20031,6 +20366,73 @@ SWIFT_CLASS_NAMED("UpdatedVoteCount")
 @end
 
 
+/// An object that contains a set of options to create a single file inside the <code>files</code> in a <code>MultipleFilesMessage</code> instance.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("UploadableFileInfo")
+@interface SBDUploadableFileInfo : NSObject
+/// File URL. <code>file</code> and <code>fileURL</code> cannot be set together.
+@property (nonatomic, readonly, copy) NSString * _Nullable fileURL;
+/// Binary file data. <code>file</code> and <code>fileURL</code> cannot be set together.
+@property (nonatomic, copy) NSData * _Nullable file;
+/// File size.
+@property (nonatomic) NSUInteger fileSize;
+/// Thumbnail sizes. This parameter is an array of <code>ThumbnailSize</code> instance and works for image file only.
+@property (nonatomic, copy) NSArray<SBDThumbnailSize *> * _Nullable thumbnailSizes;
+/// File name.
+@property (nonatomic, copy) NSString * _Nullable fileName;
+/// File MIME type.
+@property (nonatomic, copy) NSString * _Nullable mimeType;
+/// Initializes an instace of UploadableFileInfo with binary file data.
+/// \param file A binary file to be sent. The size of the file should be no bigger than the app’s file upload size limit.
+///
+///
+/// returns:
+/// An initialized UploadableFileInfo
+- (nonnull instancetype)initWithFile:(NSData * _Nonnull)file OBJC_DESIGNATED_INITIALIZER;
+/// Initializes an instace of UploadableFileInfo with a file URL.
+/// \param fileURL A file URL to be sent
+///
+///
+/// returns:
+/// An initialized UploadableFileInfo
+- (nonnull instancetype)initWithFileURL:(NSString * _Nonnull)fileURL OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+/// An object that contains a set of information of a single file that finished being uploaded inside <code>MultipleFilesMessage</code>.
+/// since:
+/// 4.9.1
+SWIFT_CLASS_NAMED("UploadedFileInfo")
+@interface SBDUploadedFileInfo : NSObject <NSCopying>
+/// The file URL.
+@property (nonatomic, readonly, copy) NSString * _Nonnull url;
+/// The file URL without the ekey.
+@property (nonatomic, readonly, copy) NSString * _Nonnull plainURL;
+/// The name of file.
+@property (nonatomic, readonly, copy) NSString * _Nullable fileName;
+/// The type of file.
+@property (nonatomic, readonly, copy) NSString * _Nullable mimeType;
+/// The size of file.
+@property (nonatomic, readonly) NSUInteger fileSize;
+/// Image thumbnails.
+@property (nonatomic, copy) NSArray<SBDThumbnail *> * _Nullable thumbnails;
+- (id _Nonnull)copyWithZone:(struct _NSZone * _Nullable)zone SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+
+@interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
+/// Initialize with json dictionary
+- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
+/// Converts the object into dictionary
+- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
+@end
+
 
 @interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <NSCopying>
 /// Compares this object with given other object.
@@ -20063,14 +20465,6 @@ SWIFT_CLASS_NAMED("UpdatedVoteCount")
 /// returns:
 /// <code>User</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDUser (SWIFT_EXTENSION(SendbirdChatSDK)) <Mappable>
-/// Initialize with json dictionary
-- (nullable instancetype)initWithDictionary:(NSDictionary<NSString *, id> * _Nonnull)json SWIFT_METHOD_FAMILY(none) SWIFT_WARN_UNUSED_RESULT;
-/// Converts the object into dictionary
-- (NSDictionary<NSString *, id> * _Nonnull)_toDictionary SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
@@ -20206,17 +20600,6 @@ SWIFT_CLASS_NAMED("UserMessage")
 
 
 @interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
-/// Compares this object with given other object.
-/// \param object <code>Any</code> instance
-///
-///
-/// returns:
-/// <code>true</code> if same otherwise <code>false</code>
-- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-@interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
 /// Deserializes and reconstructs the object
 /// \param data <code>Data</code> instance
 ///
@@ -20224,6 +20607,17 @@ SWIFT_CLASS_NAMED("UserMessage")
 /// returns:
 /// <code>UserMessage</code> if parameter is valid, otherwise <code>nil</code>
 + (nullable instancetype)buildFromSerializedData:(NSData * _Nullable)data SWIFT_WARN_UNUSED_RESULT;
+@end
+
+
+@interface SBDUserMessage (SWIFT_EXTENSION(SendbirdChatSDK))
+/// Compares this object with given other object.
+/// \param object <code>Any</code> instance
+///
+///
+/// returns:
+/// <code>true</code> if same otherwise <code>false</code>
+- (BOOL)isEqual:(id _Nullable)object SWIFT_WARN_UNUSED_RESULT;
 @end
 
 
